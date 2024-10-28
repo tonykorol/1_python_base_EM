@@ -2,38 +2,17 @@ import random
 
 
 class Cell:
-    def __init__(self, mine: bool, around_mines: int = 0) -> None:
-        self._around_mines = around_mines
-        self._mine = mine
-        self._fl_open: bool = False
-
-    @property
-    def around_mines(self) -> int:
-        return self._around_mines
-
-    @around_mines.setter
-    def around_mines(self, around_mines: int) -> None:
-        self._around_mines = around_mines
-
-    @property
-    def mine(self) -> bool:
-        return self._mine
-
-    @mine.setter
-    def mine(self, mine: bool) -> None:
-        self._mine = mine
-
-    @property
-    def fl_open(self) -> bool:
-        return self._fl_open
-
-    @fl_open.setter
-    def fl_open(self, fl_open: bool) -> None:
-        self._fl_open = fl_open
+    def __init__(self, mine: bool = False, around_mines: int = 0) -> None:
+        self.around_mines = around_mines
+        self.mine = mine
+        self.fl_open: bool = False
 
     def __repr__(self) -> str:
-        if self._fl_open:
-            return "*" if self._mine else str(self._around_mines)
+        return f"{self.__class__.__name__}({self.mine if self.mine else self.around_mines})"
+
+    def __str__(self) -> str:
+        if self.fl_open:
+            return "*" if self.mine else str(self.around_mines)
         else:
             return "#"
 
@@ -49,19 +28,22 @@ class GamePole:
         self.N = N
         self.M = M
         self.pole = self.init_pole()
-        self.set_mines()
+        self.generate_mines()
 
     def init_pole(self) -> list:
         empty_pole = []
-        for i in range(self.N):
-            empty_pole.append([Cell(False) for j in range(self.N)])
+        for _ in range(self.N):
+            empty_pole.append([Cell() for _ in range(self.N)])
         return empty_pole
 
-    def set_mines(self) -> None:
+    def generate_mines(self):
         mines_indices = self.get_indices()
         for l, c in mines_indices:
-            self.pole[l][c].mine = True
-            self.set_around_mines(l, c) # 1 1
+            self.set_mine(l, c)
+
+    def set_mine(self, l, c) -> None:
+        self.pole[l][c].mine = True
+        self.set_around_mines(l, c)
 
     def set_around_mines(self, l: int, c: int) -> None:
         for dl, dc in self.AROUND_CELLS_INDEX_DELTA:
@@ -87,5 +69,5 @@ class GamePole:
 
 
 if __name__ == "__main__":
-    pole = GamePole(5, 10)
+    pole = GamePole(5, 5)
     pole.show(True)
